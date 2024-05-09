@@ -6,41 +6,38 @@
 import asyncio
 
 async def main():
-    # Configuration
     HOST = '127.0.0.1'
     PORT = 65432
 
-    # Establish connection
     reader, writer = await asyncio.open_connection(HOST, PORT)
 
-    # Receive shared prime and base from the server
+    # Получение общего простого числа и базы от сервера
     shared_prime = int(await reader.readline())
     shared_base = int(await reader.readline())
 
-    # Print shared prime and base for debugging
-    print("Shared prime:", shared_prime)
-    print("Shared base:", shared_base)
+    # Вывод общего простого числа и базы для отладки
+    print("Общее простое число:", shared_prime)
+    print("Общая база:", shared_base)
 
-    # Get the secret key from the user
-    client_secret = input("Enter your secret key: ")
+    # Получение секретного ключа от пользователя
+    client_secret = input("Введите ваш секретный ключ: ")
 
-
-    # Generate client's public key
+    # Генерация открытого ключа клиента
     client_public_key = (shared_base ** int(client_secret)) % shared_prime
 
-    # Send client's public key to the server
+    # Отправка открытого ключа клиента на сервер
     writer.write(f"{client_public_key}\n".encode())
     await writer.drain()
 
-    # Receive server's public key
+    # Получение открытого ключа сервера
     server_public_key = int(await reader.readline())
 
-    # Compute shared secret
+    # Вычисление общего секрета
     shared_secret = (server_public_key ** int(client_secret)) % shared_prime
 
-    print("Shared secret computed:", shared_secret)
+    print("Вычислен общий секрет:", shared_secret)
 
-    # Close the connection
+    # Закрытие соединения
     writer.close()
     await writer.wait_closed()
 
