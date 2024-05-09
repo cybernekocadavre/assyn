@@ -17,8 +17,12 @@ async def main():
     shared_prime = int(await reader.readline())
     shared_base = int(await reader.readline())
 
+    # Print shared prime and base for debugging
+    print("Shared prime:", shared_prime)
+    print("Shared base:", shared_base)
+
     # Get the secret key from the user
-    client_secret = input("Enter your secret key: ")
+    client_secret = input("Enter your secret key: ", flush=True)
 
     # Generate client's public key
     client_public_key = (shared_base ** int(client_secret)) % shared_prime
@@ -41,6 +45,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
