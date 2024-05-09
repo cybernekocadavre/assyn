@@ -7,38 +7,37 @@
 import socket
 
 def main():
-    host = '127.0.0.1'
-    port = 12345
+    # Client configuration
+    HOST = '127.0.0.1'  # The server's hostname or IP address
+    PORT = 65432        # The port used by the server
 
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((host, port))
+    # Establishing socket connection
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
 
-    prime = int(client_socket.recv(1024).decode())
-    print("Received prime:", prime)
-    client_socket.sendall(b"ACK")  # Send acknowledgment to server
+        # Receiving shared prime and base from server
+        shared_prime = int(s.recv(1024).decode('utf-8'))
+        shared_base = int(s.recv(1024).decode('utf-8'))
 
-    base = int(client_socket.recv(1024).decode())
-    print("Received base:", base)
-    client_socket.sendall(b"ACK")  # Send acknowledgment to server
+        # Generating client's private secret
+        client_secret = int(input("Enter your private secret: "))
 
-    client_public_key = int(client_socket.recv(1024).decode())
-    print("Received public key:", client_public_key)
-    client_socket.sendall(b"ACK")  # Send acknowledgment to server
+        # Generating client's public key
+        client_public_key = (shared_base ** client_secret) % shared_prime
 
-    private_key = int(input("Enter private key: "))
-    public_key = (base ** private_key) % prime
+        # Sending client's public key to server
+        s.sendall(bytes(str(client_public_key), 'utf-8'))
 
-    # After sending the client's public key:
-    client_socket.recv(1024)  # Wait for acknowledgment from server
-    print("Client received acknowledgment from server")
-    
-    shared_secret = int(client_socket.recv(1024).decode())  # Receive shared secret from server
-    print("Client shared secret:", shared_secret)
+        # Receiving server's public key
+        server_public_key = int(s.recv(1024).decode('utf-8'))
 
+        # Calculating shared secret
+        shared_secret = (server_public_key ** client_secret) % shared_prime
 
-    client_socket.close()
+        print("Shared secret calculated:", shared_secret)
 
 if __name__ == "__main__":
     main()
+
 
 
