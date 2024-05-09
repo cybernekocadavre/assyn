@@ -18,7 +18,7 @@ async def main():
     shared_prime = int((await reader.read(1024)).decode())
     shared_base = int((await reader.read(1024)).decode())
 
-    # Генерация секрета клиента
+    # Получение секретного ключа от пользователя
     client_secret = int(input("Введите ваш секретный ключ: "))
 
     # Генерация открытого ключа клиента
