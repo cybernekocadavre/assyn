@@ -6,38 +6,36 @@
 import asyncio
 
 async def main():
-    # Конфигурация клиента
-    HOST = '127.0.0.1'  # IP-адрес сервера
-    PORT = 65432        # Порт, используемый сервером
+    # Configuration
+    HOST = '127.0.0.1'
+    PORT = 65432
 
-    # Установка соединения через сокет
+    # Establish connection
     reader, writer = await asyncio.open_connection(HOST, PORT)
 
-    # Получение общего простого числа и базы от сервера
-    shared_prime = int((await reader.read(1024)).decode())
-    shared_base = int((await reader.read(1024)).decode())
+    # Receive shared prime and base from the server
+    shared_prime = int(await reader.readline())
+    shared_base = int(await reader.readline())
 
-    # Получение секретного ключа от пользователя
-    writer.write("Введите ваш секретный ключ: ".encode())
-    client_secret = await reader.readline()
-    client_secret = client_secret.decode().strip()
+    # Get the secret key from the user
+    client_secret = input("Enter your secret key: ")
 
-    # Генерация открытого ключа клиента
-    client_secret_int = int(client_secret)
-    client_public_key = (shared_base ** client_secret_int) % shared_prime
+    # Generate client's public key
+    client_public_key = (shared_base ** int(client_secret)) % shared_prime
 
-    # Отправка открытого ключа клиента серверу
-    writer.write(str(client_public_key).encode())
+    # Send client's public key to the server
+    writer.write(f"{client_public_key}\n".encode())
+    await writer.drain()
 
-    # Получение открытого ключа сервера
-    server_public_key = int((await reader.read(1024)).decode())
+    # Receive server's public key
+    server_public_key = int(await reader.readline())
 
-    # Вычисление общего секрета
-    shared_secret = (server_public_key ** client_secret_int) % shared_prime
+    # Compute shared secret
+    shared_secret = (server_public_key ** int(client_secret)) % shared_prime
 
-    print("Общий секрет вычислен:", shared_secret)
+    print("Shared secret computed:", shared_secret)
 
-    # Закрытие соединения
+    # Close the connection
     writer.close()
     await writer.wait_closed()
 
