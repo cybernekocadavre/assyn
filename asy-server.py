@@ -58,8 +58,8 @@ async def handle_client(reader, writer):
     server_secret = int(choice(range(2, shared_prime - 1)))
 
     # Отправка общего простого числа и базы клиенту
-    writer.write(str(shared_prime).encode())
-    writer.write(str(shared_base).encode())
+    writer.write(f"{shared_prime}\n".encode())
+    writer.write(f"{shared_base}\n".encode())
 
     # Принятие открытого ключа клиента
     client_public_key = int((await reader.read(1024)).decode())
