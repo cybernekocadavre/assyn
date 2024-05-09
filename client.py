@@ -7,34 +7,34 @@
 import socket
 
 def main():
-    # Client configuration
-    HOST = '127.0.0.1'  # The server's hostname or IP address
-    PORT = 65432        # The port used by the server
+    # Конфигурация клиента
+    HOST = '127.0.0.1'  # Имя хоста или IP-адрес сервера
+    PORT = 65432        # Порт, используемый сервером
 
-    # Establishing socket connection
+    # Установка соединения через сокет
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
 
-        # Receiving shared prime and base from server
+        # Получение общего простого числа и базы от сервера
         shared_prime = int(s.recv(1024).decode('utf-8'))
         shared_base = int(s.recv(1024).decode('utf-8'))
 
-        # Generating client's private secret
-        client_secret = int(input("Enter your private secret: "))
+        # Генерация секрета клиента
+        client_secret = int(input("Введите ваш секретный ключ: "))
 
-        # Generating client's public key
+        # Генерация открытого ключа клиента
         client_public_key = (shared_base ** client_secret) % shared_prime
 
-        # Sending client's public key to server
+        # Отправка открытого ключа клиента серверу
         s.sendall(bytes(str(client_public_key), 'utf-8'))
 
-        # Receiving server's public key
+        # Получение открытого ключа сервера
         server_public_key = int(s.recv(1024).decode('utf-8'))
 
-        # Calculating shared secret
+        # Вычисление общего секрета
         shared_secret = (server_public_key ** client_secret) % shared_prime
 
-        print("Shared secret calculated:", shared_secret)
+        print("Общий секрет вычислен:", shared_secret)
 
 if __name__ == "__main__":
     main()
