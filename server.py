@@ -37,12 +37,14 @@ def main():
     print("Connection from:", addr)
 
     conn.sendall(str(prime).encode())
-    conn.recv(1024)
+    conn.recv(1024)  # Wait for acknowledgment from client
 
     conn.sendall(str(base).encode())
-    conn.recv(1024)
+    conn.recv(1024)  # Wait for acknowledgment from client
 
     conn.sendall(str(public_key).encode())
+    conn.recv(1024)  # Wait for acknowledgment from client
+
     client_public_key = int(conn.recv(1024).decode())
 
     shared_secret = calculate_shared_secret(client_public_key, private_key, prime)
@@ -52,4 +54,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
