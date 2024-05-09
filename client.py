@@ -14,12 +14,15 @@ def main():
     client_socket.connect((host, port))
 
     prime = int(client_socket.recv(1024).decode())
+    print("Received prime:", prime)
     client_socket.sendall(b"ACK")  # Send acknowledgment to server
 
     base = int(client_socket.recv(1024).decode())
+    print("Received base:", base)
     client_socket.sendall(b"ACK")  # Send acknowledgment to server
 
     client_public_key = int(client_socket.recv(1024).decode())
+    print("Received public key:", client_public_key)
     client_socket.sendall(b"ACK")  # Send acknowledgment to server
 
     private_key = int(input("Enter private key: "))
@@ -37,4 +40,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
