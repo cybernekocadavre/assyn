@@ -50,9 +50,9 @@ def main():
     shared_secret = calculate_shared_secret(client_public_key, private_key, prime)
     print("Shared secret:", shared_secret)
 
+    conn.sendall(str(shared_secret).encode())  # Send shared secret to client
+
     conn.close()
 
 if __name__ == "__main__":
     main()
-
-
