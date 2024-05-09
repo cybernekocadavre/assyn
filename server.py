@@ -48,7 +48,10 @@ def main():
     client_public_key = int(conn.recv(1024).decode())
 
     shared_secret = calculate_shared_secret(client_public_key, private_key, prime)
-    print("Shared secret:", shared_secret)
+    # After calculating the shared secret:
+    print("Server shared secret:", shared_secret)
+    conn.sendall(str(shared_secret).encode())  # Send shared secret to client
+
 
     conn.sendall(str(shared_secret).encode())  # Send shared secret to client
 
