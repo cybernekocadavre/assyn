@@ -25,11 +25,13 @@ def main():
     private_key = int(input("Enter private key: "))
     public_key = (base ** private_key) % prime
 
-    client_socket.sendall(str(public_key).encode())
+    # After sending the client's public key:
     client_socket.recv(1024)  # Wait for acknowledgment from server
-
+    print("Client received acknowledgment from server")
+    
     shared_secret = int(client_socket.recv(1024).decode())  # Receive shared secret from server
-    print("Shared secret:", shared_secret)
+    print("Client shared secret:", shared_secret)
+
 
     client_socket.close()
 
