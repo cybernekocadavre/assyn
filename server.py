@@ -53,8 +53,6 @@ def main():
     conn.sendall(str(shared_secret).encode())  # Send shared secret to client
 
 
-    conn.sendall(str(shared_secret).encode())  # Send shared secret to client
-
     conn.close()
 
 if __name__ == "__main__":
