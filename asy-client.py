@@ -19,10 +19,11 @@ async def main():
     shared_base = int((await reader.read(1024)).decode())
 
     # Получение секретного ключа от пользователя
-    client_secret = int(input("Введите ваш секретный ключ: "))
+    client_secret = input("Введите ваш секретный ключ: ")
 
     # Генерация открытого ключа клиента
-    client_public_key = (shared_base ** client_secret) % shared_prime
+    client_secret_int = int(client_secret)
+    client_public_key = (shared_base ** client_secret_int) % shared_prime
 
     # Отправка открытого ключа клиента серверу
     writer.write(str(client_public_key).encode())
@@ -31,7 +32,7 @@ async def main():
     server_public_key = int((await reader.read(1024)).decode())
 
     # Вычисление общего секрета
-    shared_secret = (server_public_key ** client_secret) % shared_prime
+    shared_secret = (server_public_key ** client_secret_int) % shared_prime
 
     print("Общий секрет вычислен:", shared_secret)
 
