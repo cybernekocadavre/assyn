@@ -28,12 +28,11 @@ def main():
     client_socket.sendall(str(public_key).encode())
     client_socket.recv(1024)  # Wait for acknowledgment from server
 
-    shared_secret = (int(client_socket.recv(1024).decode()) ** private_key) % prime
+    shared_secret = int(client_socket.recv(1024).decode())  # Receive shared secret from server
     print("Shared secret:", shared_secret)
 
     client_socket.close()
 
 if __name__ == "__main__":
     main()
-
 
