@@ -9,7 +9,7 @@ from math import sqrt
 from secrets import choice
 
 def is_prime(number: int) -> bool:
-    """Проверяет, является ли переданное число простым."""
+    # Проверяет, является ли переданное число простым
     if number == 2 or number == 3:
         return True
     elif number % 2 == 0 or number < 2:
@@ -20,20 +20,20 @@ def is_prime(number: int) -> bool:
     return True
 
 def generate_prime_number(min_value=0, max_value=300):
-    """Генерирует случайное простое число в заданном диапазоне."""
+    # Генерация случайного простого числа
     primes = [number for number in range(min_value, max_value) if is_prime(number)]
     return choice(primes)
 
 def generate_public_key(base, secret, prime):
-    """Генерирует открытый ключ."""
+    # Генерация открытого ключа
     return (base ** secret) % prime
 
 def calculate_shared_secret(public_key, secret, prime):
-    """Вычисляет общий секрет."""
+    # Вычисление общего секрета
     return (public_key ** secret) % prime
 
 def save_exchange(p, g, a, b, A, B, a_s, b_s, path="exchange.txt"):
-    """Сохраняет детали обмена в файл."""
+    # Сохранение деталей обмена
     exchange = "Начало обмена\n\n"
     exchange += f"Сначала были сгенерированы общее простое число (p) и общая база (g):\n\tp = {p}\n\tg = {g}\n\n"
     exchange += f"Затем Алиса и Боб сгенерировали свои собственные секреты (a и b соответственно):\n\ta = {a}\n\tb = {b}\n\n"
@@ -47,10 +47,10 @@ def save_exchange(p, g, a, b, A, B, a_s, b_s, path="exchange.txt"):
 
 def main():
     # Конфигурация сервера
-    HOST = '127.0.0.1'  # Стандартный адрес интерфейса обратной связи (localhost)
-    PORT = 65432        # Порт для прослушивания (привилегированные порты > 1023)
+    HOST = '127.0.0.1'
+    PORT = 65432
 
-    # Установка соединения через сокет
+    # Установка соединения
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen()
