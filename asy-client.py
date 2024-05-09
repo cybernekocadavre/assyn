@@ -19,7 +19,7 @@ async def main():
 
     # Получение секретного ключа от пользователя
     writer.write("Введите ваш секретный ключ: ".encode())
-    client_secret = await reader.read(100)
+    client_secret = await reader.readline()
     client_secret = client_secret.decode().strip()
 
     # Генерация открытого ключа клиента
@@ -43,5 +43,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
