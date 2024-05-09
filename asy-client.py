@@ -22,7 +22,8 @@ async def main():
     print("Shared base:", shared_base)
 
     # Get the secret key from the user
-    client_secret = input("Enter your secret key: ", flush=True)
+    client_secret = input("Enter your secret key: ")
+
 
     # Generate client's public key
     client_public_key = (shared_base ** int(client_secret)) % shared_prime
