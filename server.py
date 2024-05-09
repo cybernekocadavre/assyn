@@ -9,7 +9,10 @@ import random
 
 def generate_prime():
     primes = [i for i in range(2, 100) if all(i % j != 0 for j in range(2, i))]
-    return random.choice(primes)
+    if primes:
+        return random.choice(primes)
+    else:
+        return None
 
 def calculate_public_key(base, private_key, prime):
     return (base ** private_key) % prime
@@ -22,6 +25,10 @@ def main():
     port = 12345
 
     prime = generate_prime()
+    if prime is None:
+        print("No prime number found. Exiting.")
+        return
+
     base = random.randint(2, prime - 1)
 
     private_key = random.randint(2, prime - 1)
@@ -52,8 +59,8 @@ def main():
     print("Server shared secret:", shared_secret)
     conn.sendall(str(shared_secret).encode())  # Send shared secret to client
 
-
     conn.close()
 
 if __name__ == "__main__":
     main()
+
