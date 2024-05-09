@@ -5,6 +5,10 @@
 
 import asyncio
 import socket
+import concurrent.futures
+
+async def get_secret_key():
+    return input("Введите ваш секретный ключ: ")
 
 async def main():
     # Конфигурация клиента
@@ -19,7 +23,7 @@ async def main():
     shared_base = int((await reader.read(1024)).decode())
 
     # Получение секретного ключа от пользователя
-    client_secret = input("Введите ваш секретный ключ: ")
+    client_secret = await asyncio.run_in_executor(None, get_secret_key)
 
     # Генерация открытого ключа клиента
     client_secret_int = int(client_secret)
@@ -42,3 +46,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
