@@ -4,8 +4,12 @@
 # In[ ]:
 
 import asyncio
-import socket
-import aioconsole
+
+async def get_secret_key(reader, writer):
+    # Function to handle getting the secret key asynchronously
+    writer.write("Введите ваш секретный ключ: ".encode())
+    data = await reader.read(100)
+    return data.decode().strip()
 
 async def main():
     # Конфигурация клиента
@@ -20,7 +24,7 @@ async def main():
     shared_base = int((await reader.read(1024)).decode())
 
     # Получение секретного ключа от пользователя
-    client_secret = await aioconsole.ainput("Введите ваш секретный ключ: ")
+    client_secret = await get_secret_key(reader, writer)
 
     # Генерация открытого ключа клиента
     client_secret_int = int(client_secret)
@@ -43,5 +47,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
