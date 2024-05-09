@@ -14,19 +14,20 @@ def main():
     client_socket.connect((host, port))
 
     prime = int(client_socket.recv(1024).decode())
-    client_socket.sendall(b"ACK")
+    client_socket.sendall(b"ACK")  # Send acknowledgment to server
 
     base = int(client_socket.recv(1024).decode())
-    client_socket.sendall(b"ACK")
+    client_socket.sendall(b"ACK")  # Send acknowledgment to server
 
     client_public_key = int(client_socket.recv(1024).decode())
-    client_socket.sendall(b"ACK")
+    client_socket.sendall(b"ACK")  # Send acknowledgment to server
 
     private_key = int(input("Enter private key: "))
     public_key = (base ** private_key) % prime
 
     client_socket.sendall(str(public_key).encode())
-    
+    client_socket.recv(1024)  # Wait for acknowledgment from server
+
     shared_secret = (int(client_socket.recv(1024).decode()) ** private_key) % prime
     print("Shared secret:", shared_secret)
 
@@ -34,4 +35,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
