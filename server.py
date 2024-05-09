@@ -9,7 +9,7 @@ from math import sqrt
 from secrets import choice
 
 def is_prime(number: int) -> bool:
-    """Checks if the provided value is a prime number."""
+    """Проверяет, является ли переданное число простым."""
     if number == 2 or number == 3:
         return True
     elif number % 2 == 0 or number < 2:
@@ -20,25 +20,25 @@ def is_prime(number: int) -> bool:
     return True
 
 def generate_prime_number(min_value=0, max_value=300):
-    """Generates a random prime number within the specified range."""
+    """Генерирует случайное простое число в заданном диапазоне."""
     primes = [number for number in range(min_value, max_value) if is_prime(number)]
     return choice(primes)
 
 def generate_public_key(base, secret, prime):
-    """Generates public key."""
+    """Генерирует открытый ключ."""
     return (base ** secret) % prime
 
 def calculate_shared_secret(public_key, secret, prime):
-    """Calculates the shared secret."""
+    """Вычисляет общий секрет."""
     return (public_key ** secret) % prime
 
 def save_exchange(p, g, a, b, A, B, a_s, b_s, path="exchange.txt"):
-    """Saves the exchange details to a file."""
-    exchange = "Begin of exchange\n\n"
-    exchange += f"First a shared prime (p) & shared base (g) were generated:\n\tp = {p}\n\tg = {g}\n\n"
-    exchange += f"Next Alice and Bob generated their own private secrets (a and b respectively):\n\ta = {a}\n\tb = {b}\n\n"
-    exchange += f"Alice and Bob now compute their public secrets and send them to each other. \nThese are represented as A and B respectively:\n\tA = g^a mod p = {A}\n\tB = g^b mod p = {B}\n\n"
-    exchange += f"Alice and Bob can now calculate a common secret that can be used to encrypt later transmissions:\n\tAlice's Calculation:\n\t\ts = B^a mod p = {a_s} \n\tBob's Calculation:\n\t\ts = A^b mod p = {b_s}"
+    """Сохраняет детали обмена в файл."""
+    exchange = "Начало обмена\n\n"
+    exchange += f"Сначала были сгенерированы общее простое число (p) и общая база (g):\n\tp = {p}\n\tg = {g}\n\n"
+    exchange += f"Затем Алиса и Боб сгенерировали свои собственные секреты (a и b соответственно):\n\ta = {a}\n\tb = {b}\n\n"
+    exchange += f"Алиса и Боб теперь вычисляют свои открытые ключи и отправляют их друг другу.\nОни представлены как A и B соответственно:\n\tA = g^a mod p = {A}\n\tB = g^b mod p = {B}\n\n"
+    exchange += f"Теперь Алиса и Боб могут вычислить общий секрет, который можно использовать для шифрования последующих передач данных:\n\tВычисление Алисы:\n\t\ts = B^a mod p = {a_s} \n\tВычисление Боба:\n\t\ts = A^b mod p = {b_s}"
 
     with open(path, "w+") as output_file:
         output_file.write(exchange)
@@ -46,49 +46,50 @@ def save_exchange(p, g, a, b, A, B, a_s, b_s, path="exchange.txt"):
     return exchange
 
 def main():
-    # Server configuration
-    HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
-    PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
+    # Конфигурация сервера
+    HOST = '127.0.0.1'  # Стандартный адрес интерфейса обратной связи (localhost)
+    PORT = 65432        # Порт для прослушивания (привилегированные порты > 1023)
 
-    # Establishing socket connection
+    # Установка соединения через сокет
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen()
 
-        # Accepting incoming connection
+        # Принятие входящего подключения
         conn, addr = s.accept()
         with conn:
-            print('Connected by', addr)
+            print('Подключение установлено с', addr)
 
-            # Generating shared prime and base
+            # Генерация общего простого числа и базы
             shared_prime = generate_prime_number()
-            shared_base =  int(choice(range(2, 20)))  # Choosing a random base for simplicity
+            shared_base =  int(choice(range(2, 20)))  # Выбор случайной базы для простоты
 
-            # Generating server's private secret
+            # Генерация секрета сервера
             server_secret = int(choice(range(2, shared_prime - 1)))
 
-            # Sending shared prime and base to client
+            # Отправка общего простого числа и базы клиенту
             conn.sendall(bytes(str(shared_prime), 'utf-8'))
             conn.sendall(bytes(str(shared_base), 'utf-8'))
 
-            # Receiving client's public key
+            # Прием открытого ключа клиента
             client_public_key = int(conn.recv(1024).decode('utf-8'))
 
-            # Generating server's public key
+            # Генерация открытого ключа сервера
             server_public_key = generate_public_key(shared_base, server_secret, shared_prime)
 
-            # Sending server's public key to client
+            # Отправка открытого ключа сервера клиенту
             conn.sendall(bytes(str(server_public_key), 'utf-8'))
 
-            # Calculating shared secret
+            # Вычисление общего секрета
             shared_secret = calculate_shared_secret(client_public_key, server_secret, shared_prime)
 
-            # Saving exchange details
+            # Сохранение деталей обмена
             save_exchange(shared_prime, shared_base, server_secret, 0, server_public_key, 0, shared_secret, 0)
 
-            print("Shared secret calculated:", shared_secret)
+            print("Общий секрет вычислен:", shared_secret)
 
 if __name__ == "__main__":
     main()
+
 
 
