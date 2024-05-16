@@ -6,6 +6,19 @@
 import socket
 import os
 
+# Define port pool range
+PORT_POOL_START = 65500
+PORT_POOL_END = 65510
+current_port_index = PORT_POOL_START
+
+# Function to get the next available port from the pool
+def get_next_port():
+    global current_port_index
+    port = current_port_index
+    current_port_index += 1
+    if current_port_index > PORT_POOL_END:
+        current_port_index = PORT_POOL_START
+    return port
 
 def save_key_to_file(filename, key):
     with open(filename, 'w') as file:
