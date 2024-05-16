@@ -71,7 +71,7 @@ def main():
         # Wait for client to connect for encryption negotiation
         conn_encrypt, addr_encrypt = s_encrypt.accept()
         with conn_encrypt:
-            print('Connection established for encryption with', addr_encrypt)
+            print('Установлено приватное соединение с', addr_encrypt)
 
             # Generate shared prime and base
             shared_prime = generate_prime_number()
@@ -94,7 +94,7 @@ def main():
             allowed_keys = ['client_public_key.txt']
 
             if any(client_public_key == load_key_from_file(key_file) for key_file in allowed_keys):
-                print("Client's public key is valid for encryption.")
+                print("Публичный ключ клиента подходит для работы.")
                 # Generate and save server's public key
                 server_public_key = generate_public_key(shared_base, server_secret, shared_prime)
                 save_key_to_file('server_public_key.txt', server_public_key)
@@ -102,7 +102,7 @@ def main():
                 conn_encrypt.sendall(bytes(str(server_public_key), 'utf-8'))
                 # Calculate shared secret for encryption
                 shared_secret = calculate_shared_secret(client_public_key, server_secret, shared_prime)
-                print("Shared secret for encryption:", shared_secret)
+                print("Общий секрет:", shared_secret)
                 # Save exchange details for encryption
                 save_exchange(shared_prime, shared_base, server_secret, 0, server_public_key, 0, shared_secret, 0)
                 
@@ -114,7 +114,7 @@ def main():
                     while True:
                         conn_communication, addr_communication = s_communication.accept()
                         with conn_communication:
-                            print('Connection established for communication with', addr_communication)
+                            print('Установлено коммуникационное соединение с', addr_communication)
                             while True:
                                 data = conn_communication.recv(1024)
                                 if not data:
