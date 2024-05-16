@@ -46,6 +46,18 @@ def load_key_from_file(filename):
             return int(file.read())
     return None
 
+def save_exchange(p, g, a, b, A, B, a_s, b_s, path="exchange.txt"):
+    exchange = "Exchange Details:\n\n"
+    exchange += f"Shared Prime (p): {p}\nShared Base (g): {g}\n\n"
+    exchange += f"Server's Secret (a): {a}\nClient's Secret (b): {b}\n\n"
+    exchange += f"Server's Public Key (A): {A}\nClient's Public Key (B): {B}\n\n"
+    exchange += f"Shared Secret (a_s, b_s): {a_s}\n\n"
+
+    with open(path, "w+") as output_file:
+        output_file.write(exchange)
+
+    return exchange
+
 # Main function
 def main():
     HOST = '127.0.0.1'  # Server IP address
