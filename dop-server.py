@@ -105,19 +105,18 @@ def main():
                 print("Shared secret for encryption:", shared_secret)
                 # Save exchange details for encryption
                 save_exchange(shared_prime, shared_base, server_secret, 0, server_public_key, 0, shared_secret, 0)
+                
+                # Establish socket for main communication
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_communication:
+                    s_communication.bind((HOST, PORT_COMMUNICATION))
+                    s_communication.listen()
+
+                    while True:
+                        conn_communication, addr_communication = s_communication.accept()
+                        with conn_communication:
+                            print('Connection established for communication with', addr_communication)
             else:
                 print("Client's public key is not valid for encryption. Terminating connection.")
-
-    # Socket for main communication
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_communication:
-        s_communication.bind((HOST, PORT_COMMUNICATION))
-        s_communication.listen()
-
-        while True:
-            conn_communication, addr_communication = s_communication.accept()
-            with conn_communication:
-                print('Connection established for communication with', addr_communication)
-
 
 if __name__ == "__main__":
     main()
