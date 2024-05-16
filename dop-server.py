@@ -107,6 +107,8 @@ def main():
                 save_exchange(shared_prime, shared_base, server_secret, 0, server_public_key, 0, shared_secret, 0)
             else:
                 print("Client's public key is not valid for encryption. Terminating connection.")
+                
+            break
 
     # Socket for main communication
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_communication:
