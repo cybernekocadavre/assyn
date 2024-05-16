@@ -60,9 +60,10 @@ def save_exchange(p, g, a, b, A, B, a_s, b_s, path="exchange.txt"):
 
 def main():
     HOST = '127.0.0.1'
-    PORT_ENCRYPTION = 65432 
+    PORT_ENCRYPTION = 65432
     PORT_COMMUNICATION = 65433
 
+    # Socket for encryption negotiation
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_encrypt:
         s_encrypt.bind((HOST, PORT_ENCRYPTION))
         s_encrypt.listen()
@@ -107,6 +108,7 @@ def main():
             else:
                 print("Client's public key is not valid for encryption. Terminating connection.")
 
+    # Socket for main communication
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_communication:
         s_communication.bind((HOST, PORT_COMMUNICATION))
         s_communication.listen()
