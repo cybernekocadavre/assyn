@@ -6,7 +6,6 @@
 import socket
 import os
 
-
 def save_key_to_file(filename, key):
     with open(filename, 'w') as file:
         file.write(str(key))
@@ -51,11 +50,17 @@ def main():
 
         print("Shared secret for encryption:", shared_secret)
 
-    # Socket for main communication
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_communication:
-        s_communication.connect((HOST, PORT_COMMUNICATION))
+        # Socket for main communication
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_communication:
+            s_communication.connect((HOST, PORT_COMMUNICATION))
 
-        # Main communication logic goes here
+            # Main communication logic goes here
+            while True:
+                message = input("Enter a message to send: ")
+                s_communication.sendall(bytes(message, 'utf-8'))
+                if message.lower() == "exit":
+                    break
 
 if __name__ == "__main__":
     main()
+
