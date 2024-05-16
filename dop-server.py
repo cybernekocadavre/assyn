@@ -115,6 +115,11 @@ def main():
                         conn_communication, addr_communication = s_communication.accept()
                         with conn_communication:
                             print('Connection established for communication with', addr_communication)
+                            while True:
+                                data = conn_communication.recv(1024)
+                                if not data:
+                                    break
+                                conn_communication.sendall(data)
             else:
                 print("Client's public key is not valid for encryption. Terminating connection.")
 
