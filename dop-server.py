@@ -70,7 +70,7 @@ def main():
         while True:
             conn, addr = s.accept()
             with conn:
-                print('Connection established with', addr)
+                print('Установлено соединение с', addr)
 
                 # Generate shared prime and base
                 shared_prime = generate_prime_number()
@@ -101,11 +101,11 @@ def main():
                     conn.sendall(bytes(str(server_public_key), 'utf-8'))
                     # Calculate shared secret
                     shared_secret = calculate_shared_secret(client_public_key, server_secret, shared_prime)
-                    print("Shared secret calculated:", shared_secret)
+                    print("Общий секрет:", shared_secret)
                     # Save exchange details
                     save_exchange(shared_prime, shared_base, server_secret, 0, server_public_key, 0, shared_secret, 0)
                 else:
-                    print("Client's public key is not valid. Connection terminated.")
+                    print("Публичный ключ клиента не подходит для работы. Бип бип отключаюсь...")
 
 if __name__ == "__main__":
     main()
