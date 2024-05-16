@@ -81,7 +81,7 @@ def main():
                 allowed_keys = ['client_public_key.txt'] 
 
                 if any(client_public_key == load_key_from_file(key_file) for key_file in allowed_keys):
-                    print("Client's public key is valid. Connection accepted.")
+                    print("Публичный ключ клиента подходит для работы.")
                     # Generate and save server's public key
                     server_public_key = generate_public_key(shared_base, server_secret, shared_prime)
                     save_key_to_file('server_public_key.txt', server_public_key)
