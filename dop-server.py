@@ -90,7 +90,7 @@ def main():
                 client_public_key = int(conn.recv(1024).decode('utf-8'))
 
                 # Load allowed public keys
-                allowed_keys = [5] 
+                allowed_keys = ['client_public_key.txt'] 
 
                 if any(client_public_key == load_key_from_file(key_file) for key_file in allowed_keys):
                     print("Публичный ключ клиента подходит для работы.")
