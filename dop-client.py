@@ -6,6 +6,7 @@
 import socket
 import os
 
+
 def save_key_to_file(filename, key):
     with open(filename, 'w') as file:
         file.write(str(key))
@@ -17,38 +18,44 @@ def load_key_from_file(filename):
     return None
 
 def main():
-    # Конфигурация клиента
-    HOST = '127.0.0.1'  # IP-адрес сервера
-    PORT = 65432        # Порт, используемый сервером
+    HOST = '127.0.0.1'  # Server IP address
+    PORT_ENCRYPTION = 65432  # Port for encryption negotiation
+    PORT_COMMUNICATION = 65433  # Port for main communication
 
-    # Установка соединения через сокет
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
+    # Socket for encryption negotiation
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_encrypt:
+        s_encrypt.connect((HOST, PORT_ENCRYPTION))
 
-        # Получение общего простого числа и базы от сервера
-        shared_prime = int(s.recv(1024).decode('utf-8'))
-        shared_base = int(s.recv(1024).decode('utf-8'))
+        # Receive shared prime and base for encryption negotiation
+        shared_prime = int(s_encrypt.recv(1024).decode('utf-8'))
+        shared_base = int(s_encrypt.recv(1024).decode('utf-8'))
 
-        # Загрузка или генерация секрета клиента
+        # Load or generate client secret for encryption
         client_secret = load_key_from_file('client_secret.txt')
         if client_secret is None:
-            client_secret = int(input("Введите ваш секретный ключ: "))
+            client_secret = int(input("Enter your secret key: "))
             save_key_to_file('client_secret.txt', client_secret)
 
-        # Генерация и сохранение открытого ключа клиента
+        # Generate and save client's public key for encryption
         client_public_key = (shared_base ** client_secret) % shared_prime
         save_key_to_file('client_public_key.txt', client_public_key)
 
-        # Отправка открытого ключа клиента серверу
-        s.sendall(bytes(str(client_public_key), 'utf-8'))
+        # Send client's public key for encryption negotiation
+        s_encrypt.sendall(bytes(str(client_public_key), 'utf-8'))
 
-        # Получение открытого ключа сервера
-        server_public_key = int(s.recv(1024).decode('utf-8'))
+        # Receive server's public key for encryption negotiation
+        server_public_key = int(s_encrypt.recv(1024).decode('utf-8'))
 
-        # Вычисление общего секрета
+        # Calculate shared secret for encryption
         shared_secret = (server_public_key ** client_secret) % shared_prime
 
-        print("Общий секрет вычислен:", shared_secret)
+        print("Shared secret for encryption:", shared_secret)
+
+    # Socket for main communication
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_communication:
+        s_communication.connect((HOST, PORT_COMMUNICATION))
+
+        # Main communication logic goes here
 
 if __name__ == "__main__":
     main()
