@@ -56,10 +56,18 @@ def save_exchange(p, g, a, b, A, B, a_s, b_s, path="exchange.txt"):
 
     return exchange
 
+def get_available_port(used_ports, start_port=5000, end_port=10000):
+    for port in range(start_port, end_port):
+        if port not in used_ports:
+            return port
+    return None
+
 # Main function
 def main():
     HOST = '127.0.0.1'  # Server IP address
     PORT = 65432        # Server port number
+
+    used_ports = set()  # Set to store used ports
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
@@ -69,6 +77,15 @@ def main():
             conn, addr = s.accept()
             with conn:
                 print('Установлено соединение с', addr)
+
+                # Get an available port from the pool
+                port = get_available_port(used_ports)
+                if port is None:
+                    print("Все порты заняты!")
+                    conn.close()
+                    continue
+                
+                used_ports.add(port)  # Mark the port as used
 
                 # Generate shared prime and base
                 shared_prime = generate_prime_number()
@@ -80,9 +97,10 @@ def main():
                     server_secret = int(choice(range(2, shared_prime - 1)))
                     save_key_to_file('server_secret.txt', server_secret)
 
-                # Send shared prime and base to client
+                # Send shared prime, base, and port to client
                 conn.sendall(bytes(str(shared_prime), 'utf-8'))
                 conn.sendall(bytes(str(shared_base), 'utf-8'))
+                conn.sendall(bytes(str(port), 'utf-8'))
 
                 # Receive client's public key
                 client_public_key = int(conn.recv(1024).decode('utf-8'))
@@ -105,5 +123,10 @@ def main():
                 else:
                     print("Публичный ключ клиента не подходит для работы. Бип бип отключаюсь...")
 
+                # Close the connection and release the port
+                conn.close()
+                used_ports.remove(port)
+
 if __name__ == "__main__":
     main()
+
