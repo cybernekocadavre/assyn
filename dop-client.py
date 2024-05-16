@@ -61,6 +61,10 @@ def main():
                 if message.lower() == "exit":
                     break
 
+            # Close the connection after sending all messages
+            s_communication.shutdown(socket.SHUT_RDWR)
+
 if __name__ == "__main__":
     main()
+
 
