@@ -56,7 +56,7 @@ def main():
 
             # Main communication logic goes here
             while True:
-                message = input("Enter a message to send: ")
+                message = input("Введите сообщение: ")
                 s_communication.sendall(bytes(message, 'utf-8'))
                 if message.lower() == "exit":
                     break
