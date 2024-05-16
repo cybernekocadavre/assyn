@@ -8,6 +8,19 @@ from math import sqrt
 from secrets import choice
 import os
 
+PORT_POOL_START = 65500
+PORT_POOL_END = 65510
+current_port_index = PORT_POOL_START
+
+# Function to get the next available port from the pool
+def get_next_port():
+    global current_port_index
+    port = current_port_index
+    current_port_index += 1
+    if current_port_index > PORT_POOL_END:
+        current_port_index = PORT_POOL_START
+    return port
+
 # Function to check if a number is prime
 def is_prime(number: int) -> bool:
     if number == 2 or number == 3:
