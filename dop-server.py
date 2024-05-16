@@ -58,10 +58,22 @@ def save_exchange(p, g, a, b, A, B, a_s, b_s, path="exchange.txt"):
 
     return exchange
 
+def get_available_port(start_port, end_port):
+    for port in range(start_port, end_port + 1):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            result = s.connect_ex(('127.0.0.1', port))
+            if result != 0:
+                return port
+    return None
+
 def main():
     HOST = '127.0.0.1'
-    PORT_ENCRYPTION = 65432
-    PORT_COMMUNICATION = 65433
+    PORT_ENCRYPTION = get_available_port(65432, 65500)
+    PORT_COMMUNICATION = get_available_port(65433, 65500)
+
+    if PORT_ENCRYPTION is None or PORT_COMMUNICATION is None:
+        print("Нет доступных портов.")
+        return
 
     # Socket for encryption negotiation
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_encrypt:
