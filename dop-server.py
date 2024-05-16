@@ -58,54 +58,63 @@ def save_exchange(p, g, a, b, A, B, a_s, b_s, path="exchange.txt"):
 
     return exchange
 
-# Main function
 def main():
-    HOST = '127.0.0.1'  # Server IP address
-    PORT = 65432        # Server port number
+    HOST = '127.0.0.1'
+    PORT_ENCRYPTION = 65432 
+    PORT_COMMUNICATION = 65433
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
-        s.listen()
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_encrypt:
+        s_encrypt.bind((HOST, PORT_ENCRYPTION))
+        s_encrypt.listen()
+
+        # Wait for client to connect for encryption negotiation
+        conn_encrypt, addr_encrypt = s_encrypt.accept()
+        with conn_encrypt:
+            print('Connection established for encryption with', addr_encrypt)
+
+            # Generate shared prime and base
+            shared_prime = generate_prime_number()
+            shared_base = int(choice(range(2, 20)))
+
+            # Load or generate server secret
+            server_secret = load_key_from_file('server_secret.txt')
+            if server_secret is None:
+                server_secret = int(choice(range(2, shared_prime - 1)))
+                save_key_to_file('server_secret.txt', server_secret)
+
+            # Send shared prime and base to client for encryption negotiation
+            conn_encrypt.sendall(bytes(str(shared_prime), 'utf-8'))
+            conn_encrypt.sendall(bytes(str(shared_base), 'utf-8'))
+
+            # Receive client's public key for encryption negotiation
+            client_public_key = int(conn_encrypt.recv(1024).decode('utf-8'))
+
+            # Load allowed public keys for encryption negotiation
+            allowed_keys = ['client_public_key.txt']
+
+            if any(client_public_key == load_key_from_file(key_file) for key_file in allowed_keys):
+                print("Client's public key is valid for encryption.")
+                # Generate and save server's public key
+                server_public_key = generate_public_key(shared_base, server_secret, shared_prime)
+                save_key_to_file('server_public_key.txt', server_public_key)
+                # Send server's public key to client for encryption negotiation
+                conn_encrypt.sendall(bytes(str(server_public_key), 'utf-8'))
+                # Calculate shared secret for encryption
+                shared_secret = calculate_shared_secret(client_public_key, server_secret, shared_prime)
+                print("Shared secret for encryption:", shared_secret)
+                # Save exchange details for encryption
+                save_exchange(shared_prime, shared_base, server_secret, 0, server_public_key, 0, shared_secret, 0)
+            else:
+                print("Client's public key is not valid for encryption. Terminating connection.")
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_communication:
+        s_communication.bind((HOST, PORT_COMMUNICATION))
+        s_communication.listen()
 
         while True:
-            conn, addr = s.accept()
-            with conn:
-                print('Установлено соединение с', addr)
-
-                # Generate shared prime and base
-                shared_prime = generate_prime_number()
-                shared_base = int(choice(range(2, 20)))
-
-                # Load or generate server secret
-                server_secret = load_key_from_file('server_secret.txt')
-                if server_secret is None:
-                    server_secret = int(choice(range(2, shared_prime - 1)))
-                    save_key_to_file('server_secret.txt', server_secret)
-
-                # Send shared prime and base to client
-                conn.sendall(bytes(str(shared_prime), 'utf-8'))
-                conn.sendall(bytes(str(shared_base), 'utf-8'))
-
-                # Receive client's public key
-                client_public_key = int(conn.recv(1024).decode('utf-8'))
-
-                # Load allowed public keys
-                allowed_keys = ['client_public_key.txt'] 
-
-                if any(client_public_key == load_key_from_file(key_file) for key_file in allowed_keys):
-                    print("Публичный ключ клиента подходит для работы.")
-                    # Generate and save server's public key
-                    server_public_key = generate_public_key(shared_base, server_secret, shared_prime)
-                    save_key_to_file('server_public_key.txt', server_public_key)
-                    # Send server's public key to client
-                    conn.sendall(bytes(str(server_public_key), 'utf-8'))
-                    # Calculate shared secret
-                    shared_secret = calculate_shared_secret(client_public_key, server_secret, shared_prime)
-                    print("Общий секрет:", shared_secret)
-                    # Save exchange details
-                    save_exchange(shared_prime, shared_base, server_secret, 0, server_public_key, 0, shared_secret, 0)
-                else:
-                    print("Публичный ключ клиента не подходит для работы. Бип бип отключаюсь...")
+            conn_communication, addr_communication = s_communication.accept()
+            with conn_communication:
+                print('Connection established for communication with', addr_communication)
 
 if __name__ == "__main__":
     main()
