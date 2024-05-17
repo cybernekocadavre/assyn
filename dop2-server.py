@@ -8,7 +8,6 @@ from math import sqrt
 from secrets import choice
 import os
 
-# Function to check if a number is prime
 def is_prime(number: int) -> bool:
     if number == 2 or number == 3:
         return True
@@ -19,25 +18,20 @@ def is_prime(number: int) -> bool:
             return False
     return True
 
-# Function to generate a random prime number within a range
 def generate_prime_number(min_value=0, max_value=300):
     primes = [number for number in range(min_value, max_value) if is_prime(number)]
     return choice(primes)
 
-# Function to generate a public key from a base and secret
 def generate_public_key(base, secret, prime):
     return (base ** secret) % prime
 
-# Function to calculate the shared secret
 def calculate_shared_secret(public_key, secret, prime):
     return (public_key ** secret) % prime
 
-# Function to save a key to a file
 def save_key_to_file(filename, key):
     with open(filename, 'w') as file:
         file.write(str(key))
 
-# Function to load a key from a file
 def load_key_from_file(filename):
     if os.path.exists(filename):
         with open(filename, 'r') as file:
@@ -62,12 +56,11 @@ def get_available_port(used_ports, start_port=5000, end_port=10000):
             return port
     return None
 
-# Main function
 def main():
-    HOST = '127.0.0.1'  # Server IP address
-    PORT = 65432        # Server port number
+    HOST = '127.0.0.1'
+    PORT = 65432
 
-    used_ports = set()  # Set to store used ports
+    used_ports = set()
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
@@ -85,45 +78,39 @@ def main():
                     conn.close()
                     continue
                 
-                used_ports.add(port)  # Mark the port as used
+                used_ports.add(port)
 
-                # Generate shared prime and base
                 shared_prime = generate_prime_number()
                 shared_base = int(choice(range(2, 20)))
 
-                # Load or generate server secret
                 server_secret = load_key_from_file('server_secret.txt')
                 if server_secret is None:
                     server_secret = int(choice(range(2, shared_prime - 1)))
                     save_key_to_file('server_secret.txt', server_secret)
 
-                # Send shared prime, base, and port to client
                 conn.sendall(bytes(str(shared_prime), 'utf-8'))
                 conn.sendall(bytes(str(shared_base), 'utf-8'))
                 conn.sendall(bytes(str(port), 'utf-8'))
 
-                # Receive client's public key
                 client_public_key = int(conn.recv(1024).decode('utf-8'))
 
-                # Load allowed public keys
                 allowed_keys = ['client_public_key.txt'] 
 
                 if any(client_public_key == load_key_from_file(key_file) for key_file in allowed_keys):
                     print("Публичный ключ клиента подходит для работы.")
-                    # Generate and save server's public key
+                    
                     server_public_key = generate_public_key(shared_base, server_secret, shared_prime)
                     save_key_to_file('server_public_key.txt', server_public_key)
-                    # Send server's public key to client
+
                     conn.sendall(bytes(str(server_public_key), 'utf-8'))
-                    # Calculate shared secret
+
                     shared_secret = calculate_shared_secret(client_public_key, server_secret, shared_prime)
                     print("Общий секрет:", shared_secret)
-                    # Save exchange details
+
                     save_exchange(shared_prime, shared_base, server_secret, 0, server_public_key, 0, shared_secret, 0)
                 else:
                     print("Публичный ключ клиента не подходит для работы. Бип бип отключаюсь...")
 
-                # Close the connection and release the port
                 conn.close()
                 used_ports.remove(port)
 
